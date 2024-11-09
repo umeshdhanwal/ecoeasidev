@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /*------Color variables------*/
+    --amber_a400: #ffc700;
+    --black_900: #000000;
+    --blue_gray_100: #d3d3d3;
+    --blue_gray_200: #a9b7cd;
+    --blue_gray_50: #f1f1f1;
+    --deep_purple_a200: #755ffb;
+    --deep_purple_a400: #5135ff;
+    --gray_100: #f4f4f4;
+    --gray_200: #eeeeee;
+    --gray_200_01: #e8e8e8;
+    --gray_300: #e2e2e2;
+    --gray_300_01: #dbdbdb;
+    --gray_300_02: #e3e3e3;
+    --gray_400: #c4c4c4;
+    --gray_400_01: #cacaca;
+    --gray_400_02: #bbd2bb;
+    --gray_400_03: #c5c5c5;
+    --gray_400_3f: #b2b2b23f;
+    --gray_50: #f9f9f9;
+    --gray_500: #a8a8a8;
+    --gray_50_01: #f9f9fb;
+    --gray_50_19: #f9f9f919;
+    --gray_600: #797979;
+    --gray_800: #505050;
+    --gray_900: #242331;
+    --green_300: #8ada88;
+    --green_300_01: #89dd8c;
+    --green_300_02: #8ade8c;
+    --green_500: #44c541;
+    --green_500_01: #30c55a;
+    --green_500_02: #4caf4f;
+    --green_800: #05a302;
+    --green_800_01: #05a402;
+    --indigo_100: #c1b9f5;
+    --indigo_50: #e0dbff;
+    --lime_800: #c58914;
+    --orange_400: #ffb422;
+    --pink_a200: #ff3589;
+    --purple_50: #fae1ff;
+    --purple_a200: #d94ce5;
+    --purple_a700: #8f00f8;
+    --red_300: #ff6868;
+    --white_a700: #ffffff;
+    --white_a700_19: #ffffff19;
+    --yellow_100: #ffedcc;
+
+    /*------Shadow variables------*/
+    --shadow-xs: 5px 10px 21px 0 #b2b2b23f;
+
+    /*------Border radius variables------*/
+    --radius-xs: 4px;
+    --radius-sm: 5px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 22px;
+    --radius-2xl: 26px;
+    --radius-3xl: 30px;
+    --radius-4xl: 34px;
+    --radius-5xl: 36px;
+    --radius-6xl: 40px;
+    --radius-7xl: 50px;
+    --radius-8xl: 60px;
+
+    /*------Spacing variables------*/
+    --space-xs: 8px;
+    --space-sm: 10px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 18px;
+    --space-2xl: 20px;
+    --space-3xl: 22px;
+    --space-4xl: 24px;
+    --space-5xl: 30px;
+    --space-6xl: 32px;
+    --space-7xl: 34px;
+    --space-8xl: 38px;
+    --space-9xl: 40px;
+    --space-10xl: 44px;
+    --space-11xl: 46px;
+    --space-12xl: 48px;
+    --space-13xl: 58px;
+    --space-14xl: 70px;
+    --space-15xl: 146px;
+    --space-16xl: 170px;
+  }
+}
+@layer components {
+  /*-------------------------------------
+  Container CSS
+--------------------------------------*/
+  .container-xs {
+    @apply w-full mx-auto max-w-[1402px];
+  }
+}
