@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
-import Select from 'react-select';
 import { Button } from '../Button';
 
 const ResultsSection = () => {
