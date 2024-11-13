@@ -7,6 +7,7 @@ import ProgressOverviewSection from "../components/ProgressOverviewSection";
 import GenderBreakdownBar from '../components/GenderBreakdownBar';  // Add this import at the top of the file
 import { useNavigate } from 'react-router-dom';
 import QuestionnaireStepper from "../components/QuestionnaireStepper";
+import ResultsSection from "../components/ResultsSection";
 
 const QuestionnairePage = () => {
   const [question, setQuestion] = useState(null);
@@ -22,6 +23,8 @@ const QuestionnairePage = () => {
     Social: { total: 0, answered: 0, items: [] },
     Governance: { total: 0, answered: 0, items: [] }
   });
+  const [isSurveyComplete, setIsSurveyComplete] = useState(false);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const fetchTotalQuestions = async () => {
     try {
@@ -38,6 +41,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
+            survey_id: "VSME_1",
             payload: {
               question_number: currentQuestion
             }
@@ -88,6 +92,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
+            survey_id: "VSME_1",
             payload: {
               question_number: currentQuestion
             }
@@ -171,6 +176,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
+            survey_id: "VSME_1",
             payload: {
               question_number: questionNumber
             }
@@ -273,15 +279,115 @@ const QuestionnairePage = () => {
   };
 
   const handleNextQuestion = async () => {
-    // Save the current answer (you might want to send this to an API)
+    setIsButtonLoading(true); // Start loading
     console.log("Saving answer:", Array.isArray(answer) ? answer : [answer]);
+    
+    try {
+      // Save the current answer first
+      await saveAnswer(questionNumber, answer);
 
-    setQuestionNumber(prevNumber => prevNumber + 1);
-    if (questionNumber >= answeredQuestions) {
-      setAnsweredQuestions(prevAnswered => prevAnswered + 1);
+      // Try to fetch the next question
+      const response = await fetch("https://g84c60a1e52e6e4-ora23aidb.adb.eu-paris-1.oraclecloudapps.com/ords/api/ee_do_service/this_action", {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          procedure: "GET_QUESTION",
+          user_id: 10006,
+          survey_id: "VSME_1",
+          payload: {
+            question_number: questionNumber + 1
+          }
+        })
+      });
+
+      const rawText = await response.text();
+      const systemResponseMatch = rawText.match(/"system_response":\s*"([^"]+)"/);
+      
+      // If no more questions are available or error response
+      if (!systemResponseMatch || !systemResponseMatch[1].includes("SUCCESS")) {
+        setAnsweredQuestions(totalQuestions); // Ensure we're at 100%
+        setIsSurveyComplete(true);
+        return;
+      }
+
+      // Extract question data
+      const questionNumberMatch = rawText.match(/"question_number":\s*(\d+)/);
+      const questionTextMatch = rawText.match(/"question_text":\s*"([^"]+)"/);
+      const answerTypeMatch = rawText.match(/"answer_type":\s*"([^"]+)"/);
+      const optionsMatch = rawText.match(/"options":\s*(\[.*?\])/);
+
+      if (!questionNumberMatch || !questionTextMatch || !answerTypeMatch) {
+        console.log("Invalid question data, showing results");
+        setIsSurveyComplete(true);
+        return;
+      }
+
+      // Update question states
+      const nextQuestionNumber = parseInt(questionNumberMatch[1]);
+      setQuestionNumber(nextQuestionNumber);
+      
+      // Update progress
+      if (nextQuestionNumber > answeredQuestions) {
+        setAnsweredQuestions(nextQuestionNumber - 1);
+      }
+
+      // Reset answer for new question
+      setAnswer([]);
+
+      // Update the question object
+      setQuestion({
+        questionNumber: nextQuestionNumber,
+        questionText: questionTextMatch[1],
+        answerType: answerTypeMatch[1],
+        answerOptions: {
+          answer_type: answerTypeMatch[1],
+          options: optionsMatch ? JSON.parse(optionsMatch[1]) : []
+        }
+      });
+
+      // Update question status in classifications
+      updateQuestionStatus(questionNumber, true);
+
+    } catch (error) {
+      console.error("Error handling next question:", error);
+      setIsSurveyComplete(true);
+    } finally {
+      setIsButtonLoading(false); // Stop loading regardless of outcome
     }
-    setAnswer([]); // Reset answer to an empty array
-    updateQuestionStatus(questionNumber);
+  };
+
+  // Helper function to save answers
+  const saveAnswer = async (questionNum, answerData) => {
+    try {
+      const response = await fetch("https://g84c60a1e52e6e4-ora23aidb.adb.eu-paris-1.oraclecloudapps.com/ords/api/ee_do_service/this_action", {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          procedure: "SAVE_ANSWER",
+          user_id: 10006,
+          survey_id: "VSME_1",
+          payload: {
+            question_number: questionNum,
+            answer: Array.isArray(answerData) ? answerData : [answerData]
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.text();
+      console.log("Answer saved successfully:", result);
+    } catch (error) {
+      console.error("Error saving answer:", error);
+    }
   };
 
   const handleBackQuestion = () => {
@@ -383,6 +489,9 @@ const QuestionnairePage = () => {
   };
 
   const calculateProgress = () => {
+    if (isSurveyComplete) {
+      return 100;
+    }
     return Math.round((answeredQuestions / totalQuestions) * 100) || 0;
   };
 
@@ -401,10 +510,13 @@ const QuestionnairePage = () => {
       <div className="flex w-full flex-col items-center bg-white shadow-xs">
         <Header simplified className="w-full" onLogout={() => navigate('/')} />
         <ProgressOverviewSection progress={calculateProgress()} />
+        
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <p>Loading questions...</p>
           </div>
+        ) : isSurveyComplete ? (
+          <ResultsSection />
         ) : (
           <div className="flex w-full">
             <QuestionnaireStepper 
@@ -448,9 +560,17 @@ const QuestionnairePage = () => {
                       <Button 
                         onClick={handleNextQuestion} 
                         shape="round" 
-                        className="min-w-[90px] rounded-lg px-6 py-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors duration-300"
+                        className="min-w-[90px] rounded-lg px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
+                        disabled={isButtonLoading}
                       >
-                        Next
+                        {isButtonLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Loading...
+                          </div>
+                        ) : (
+                          'Next'
+                        )}
                       </Button>
                     </div>
                   </div>

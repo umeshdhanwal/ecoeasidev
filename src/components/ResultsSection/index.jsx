@@ -1,0 +1,206 @@
+import React, { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
+import Select from 'react-select';
+import { Button } from '../Button';
+
+const ResultsSection = () => {
+  // Dummy data for Carbon emissions
+  const carbonData = [
+    { name: 'Scope 1', value: 42 },
+    { name: 'Scope 2', value: 1 },
+    { name: 'Scope 3', value: 2 },
+  ];
+
+  // Dummy data for Energy usage
+  const energyData = [
+    { name: 'Renewable', value: 16000 },
+    { name: 'Non Renewable', value: 8000 },
+  ];
+
+  // Dummy data for EU comparison
+  const euComparisonData = [
+    { name: 'Your Company', emissions: 45 },
+    { name: 'EU SME avg', emissions: 75 },
+  ];
+
+  const COLORS = ['#4ade80', '#6366f1', '#f472b6'];
+
+  const [selectedCompanies, setSelectedCompanies] = useState([]);
+  
+  const companyOptions = [
+    { value: 'pwc', label: 'PwC Ireland (Auditor)', category: 'Auditor' },
+    { value: 'kpmg', label: 'KPMG Ireland (Auditor)', category: 'Auditor' },
+    { value: 'deloitte', label: 'Deloitte Ireland (Auditor)', category: 'Auditor' },
+    { value: 'glanbia', label: 'Glanbia', category: 'Buyer' },
+    { value: 'kerry', label: 'Kerry Group', category: 'Buyer' },
+    { value: 'dairygold', label: 'Dairygold', category: 'Buyer' },
+    { value: 'lakeland', label: 'Lakeland Dairies', category: 'Buyer' },
+  ];
+
+  const handleShare = () => {
+    console.log('Sharing results with:', selectedCompanies);
+    // Implement sharing logic here
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold mb-4">Sustainability Assessment Results</h2>
+        <p className="text-gray-600">Based on your responses, here's your company's sustainability profile:</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Carbon Emissions Section */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-green-100 rounded-full">
+              <Factory className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold">Carbon Emissions</h3>
+          </div>
+          <PieChart width={400} height={300}>
+            <Pie
+              data={carbonData}
+              cx={200}
+              cy={150}
+              innerRadius={60}
+              outerRadius={100}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {carbonData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            {carbonData.map((item, index) => (
+              <div key={item.name} className="text-center">
+                <p className="text-sm text-gray-600">{item.name}</p>
+                <p className="font-semibold">{item.value} T CO2eq</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Energy Usage Section */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <Zap className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-xl font-semibold">Energy Usage</h3>
+          </div>
+          <PieChart width={400} height={300}>
+            <Pie
+              data={energyData}
+              cx={200}
+              cy={150}
+              innerRadius={60}
+              outerRadius={100}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {energyData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {energyData.map((item, index) => (
+              <div key={item.name} className="text-center">
+                <p className="text-sm text-gray-600">{item.name}</p>
+                <p className="font-semibold">{item.value} kWh</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* EU Comparison Section */}
+        <div className="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-purple-100 rounded-full">
+              <BarChart2 className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-xl font-semibold">Comparison with EU Average</h3>
+          </div>
+          <BarChart width={800} height={300} data={euComparisonData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="emissions" fill="#4ade80" />
+          </BarChart>
+        </div>
+      </div>
+
+      <div className="mt-8 bg-green-50 p-6 rounded-lg">
+        <div className="flex items-center gap-3 mb-4">
+          <Leaf className="w-6 h-6 text-green-600" />
+          <h3 className="text-xl font-semibold">Sustainability Score</h3>
+        </div>
+        <p className="text-gray-700">
+          Your company is performing better than 65% of SMEs in your sector. Key areas for improvement include:
+        </p>
+        <ul className="list-disc list-inside mt-2 text-gray-600">
+          <li>Increasing renewable energy usage</li>
+          <li>Implementing scope 3 emissions tracking</li>
+          <li>Setting science-based targets</li>
+        </ul>
+      </div>
+
+      <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
+          <Share className="w-6 h-6 text-blue-600" />
+          <h3 className="text-xl font-semibold">Share Results</h3>
+        </div>
+        
+        <div className="mb-4">
+          <p className="text-gray-700 mb-2">
+            Share your sustainability assessment results with buyers and auditors:
+          </p>
+          <Select
+            isMulti
+            options={companyOptions}
+            value={selectedCompanies}
+            onChange={setSelectedCompanies}
+            className="w-full"
+            classNamePrefix="select"
+            placeholder="Select companies to share with..."
+            formatGroupLabel={data => (
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-gray-700">{data.label}</span>
+                <span className="bg-gray-200 rounded-full px-2 py-1 text-xs">
+                  {data.options.length}
+                </span>
+              </div>
+            )}
+            groups={[
+              {
+                label: 'Auditors',
+                options: companyOptions.filter(opt => opt.category === 'Auditor')
+              },
+              {
+                label: 'Buyers',
+                options: companyOptions.filter(opt => opt.category === 'Buyer')
+              }
+            ]}
+          />
+        </div>
+
+        <Button
+          onClick={handleShare}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
+          disabled={selectedCompanies.length === 0}
+        >
+          Share Results
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default ResultsSection; 
