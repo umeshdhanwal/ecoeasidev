@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
+import Select from 'react-select';
 import { Button } from '../Button';
 
 const ResultsSection = () => {
@@ -35,6 +36,17 @@ const ResultsSection = () => {
     { value: 'kerry', label: 'Kerry Group', category: 'Buyer' },
     { value: 'dairygold', label: 'Dairygold', category: 'Buyer' },
     { value: 'lakeland', label: 'Lakeland Dairies', category: 'Buyer' },
+  ];
+
+  const groupedOptions = [
+    {
+      label: 'Auditors',
+      options: companyOptions.filter(opt => opt.category === 'Auditor')
+    },
+    {
+      label: 'Buyers',
+      options: companyOptions.filter(opt => opt.category === 'Buyer')
+    }
   ];
 
   const handleShare = () => {
@@ -163,7 +175,7 @@ const ResultsSection = () => {
           </p>
           <Select
             isMulti
-            options={companyOptions}
+            options={groupedOptions}
             value={selectedCompanies}
             onChange={setSelectedCompanies}
             className="w-full"
@@ -177,16 +189,6 @@ const ResultsSection = () => {
                 </span>
               </div>
             )}
-            groups={[
-              {
-                label: 'Auditors',
-                options: companyOptions.filter(opt => opt.category === 'Auditor')
-              },
-              {
-                label: 'Buyers',
-                options: companyOptions.filter(opt => opt.category === 'Buyer')
-              }
-            ]}
           />
         </div>
 
