@@ -3,6 +3,28 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cel
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
 import { Button } from '../Button';
 
+const MultiSelect = ({ options, value, onChange }) => (
+  <select
+    multiple
+    className="w-full rounded-lg border border-gray-200 p-2 min-h-[100px]"
+    value={value}
+    onChange={(e) => {
+      const selected = Array.from(e.target.selectedOptions, option => option.value);
+      onChange(selected);
+    }}
+  >
+    {options.map(group => (
+      <optgroup key={group.label} label={group.label}>
+        {group.options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </optgroup>
+    ))}
+  </select>
+);
+
 const ResultsSection = () => {
   // Dummy data for Carbon emissions
   const carbonData = [
