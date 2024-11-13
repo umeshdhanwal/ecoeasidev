@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
-import Select from 'react-select';
 import { Button } from '../Button';
 
 const ResultsSection = () => {
@@ -173,22 +172,11 @@ const ResultsSection = () => {
           <p className="text-gray-700 mb-2">
             Share your sustainability assessment results with buyers and auditors:
           </p>
-          <Select
-            isMulti
+          <MultiSelect
             options={groupedOptions}
             value={selectedCompanies}
             onChange={setSelectedCompanies}
             className="w-full"
-            classNamePrefix="select"
-            placeholder="Select companies to share with..."
-            formatGroupLabel={data => (
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-700">{data.label}</span>
-                <span className="bg-gray-200 rounded-full px-2 py-1 text-xs">
-                  {data.options.length}
-                </span>
-              </div>
-            )}
           />
         </div>
 
