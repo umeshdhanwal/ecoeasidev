@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
 import { Button } from '../Button';
+import { useNavigate } from 'react-router-dom';
 
 const MultiSelect = ({ options, value, onChange }) => (
   <select
@@ -25,7 +26,9 @@ const MultiSelect = ({ options, value, onChange }) => (
   </select>
 );
 
-const ResultsSection = () => {
+const ResultsSection = ({ totalQuestions }) => {
+  const navigate = useNavigate();
+
   // Dummy data for Carbon emissions
   const carbonData = [
     { name: 'Scope 1', value: 42 },
@@ -77,9 +80,29 @@ const ResultsSection = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-4">Sustainability Assessment Results</h2>
-        <p className="text-gray-600">Based on your responses, here's your company's sustainability profile:</p>
+      <div className="flex justify-between items-center mb-8">
+        <Button
+          onClick={() => window.history.back()}
+          variant="outline" 
+          shape="round" 
+          className="min-w-[90px] rounded-lg border border-blue-600 px-6 py-2 text-blue-600 bg-white hover:bg-blue-50 transition-colors duration-300 flex items-center gap-2"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </Button>
+        <h2 className="text-3xl font-bold">Sustainability Assessment Results</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
