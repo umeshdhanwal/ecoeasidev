@@ -186,6 +186,24 @@ const ResultsSection = () => {
 
       <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
         <div className="flex items-center gap-3 mb-6">
+          <BarChart2 className="w-6 h-6 text-indigo-600" />
+          <h3 className="text-xl font-semibold">Generate Report</h3>
+        </div>
+        
+        <p className="text-gray-700 mb-4">
+          Generate a detailed sustainability report based on your assessment results.
+        </p>
+
+        <Button
+          onClick={() => console.log('Generating report...')}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-300"
+        >
+          Create Detailed Report
+        </Button>
+      </div>
+
+      <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
           <Share className="w-6 h-6 text-blue-600" />
           <h3 className="text-xl font-semibold">Share Results</h3>
         </div>
@@ -207,7 +225,7 @@ const ResultsSection = () => {
           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
           disabled={selectedCompanies.length === 0}
         >
-          Share Results
+          Share Results and Report
         </Button>
       </div>
     </div>
