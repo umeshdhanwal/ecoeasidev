@@ -8,6 +8,7 @@ import GenderBreakdownBar from '../components/GenderBreakdownBar';  // Add this 
 import { useNavigate } from 'react-router-dom';
 import QuestionnaireStepper from "../components/QuestionnaireStepper";
 import ResultsSection from "../components/ResultsSection";
+import TaraAIAssistant from "../components/TaraAIAssistant";
 
 const QuestionnairePage = () => {
   const [question, setQuestion] = useState(null);
@@ -576,44 +577,10 @@ const QuestionnairePage = () => {
                   </div>
                   {/* Add the prompt answer and selection section here */}
                   <div className="w-[28%] md:w-full">
-                    <div className="flex flex-col gap-8 rounded-[16px] bg-[#F8F9FF] p-[18px]">
-                      <div className="mt-2.5 flex flex-col gap-5">
-                        <div className="flex flex-col items-start justify-center gap-2.5">
-                          <Text size="sm_regular" as="p" className="text-[14px] font-normal tracking-[0.07px] text-black">
-                            Write a question or request
-                          </Text>
-                          <TextArea
-                            shape="round"
-                            name="Question Textarea"
-                            placeholder="Write here"
-                            className="self-stretch rounded-lg border border-gray-200 px-4 py-2 font-medium tracking-[0.07px] text-gray-600 w-full"
-                          />
-                        </div>
-                        <div className="flex justify-end gap-[13px] items-center">
-                          <button className="text-[14px] font-semibold text-blue-600 hover:text-blue-700">
-                            New prompt
-                          </button>
-                          <Button 
-                            shape="round" 
-                            className="min-w-[112px] rounded-lg px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300"
-                          >
-                            Add answer
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <Img 
-                          src="images/img_objects.svg" 
-                          alt="Avatar" 
-                          className="w-12 h-12 object-contain"
-                        />
-                        <div className="flex-1 self-center rounded-lg border border-solid border-gray-200 bg-white p-3 shadow-sm">
-                          <Text as="p" className="text-[14px] font-normal leading-[22px] text-gray-700">
-                            I have made a draft selection for you from the 33 options I have provided, based on the information you gave me. If you are happy with this selection, please select and submit?
-                          </Text>
-                        </div>
-                      </div>
-                    </div>
+                    <TaraAIAssistant 
+                      currentQuestion={question} 
+                      onSuggestionSelect={(suggestion) => setAnswer(suggestion)}
+                    />
                   </div>
                 </div>
               </div>
