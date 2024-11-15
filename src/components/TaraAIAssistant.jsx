@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Text, Button } from "../components";
+import { Text, Button, Img } from "../components";
 import TextArea from "./TextArea";
-import { RiRobot2Fill } from 'react-icons/ri';
 import { BiSend } from 'react-icons/bi';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 
-const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect }) => {
+const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton = false }) => {
   const [userQuestion, setUserQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState('');
 
   useEffect(() => {
-    if (currentQuestion?.questionText) {
+    if (currentQuestion?.questionText && !showOnlyButton) {
       const formattedQuestion = `Please explain this ESG question in detail: "${currentQuestion.questionText}". Include its relevance to CSRD compliance and VSME framework.`;
       askTara(formattedQuestion);
     }
-  }, [currentQuestion]);
+  }, [currentQuestion, showOnlyButton]);
 
   const askTara = async (question) => {
     setIsLoading(true);
@@ -108,10 +107,119 @@ Use:
       .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>');
   };
 
+  const getSuggestionFromTara = async () => {
+    if (!currentQuestion?.questionNumber) {
+      console.error('No question number available');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // First try to get AI suggestion
+      const aiRequestBody = {
+        procedure: "ASK_TARA",
+        user_id: 10006,
+        survey_id: "VSME_1",
+        payload: {
+          question_number: parseInt(currentQuestion.questionNumber),
+          company_name: "Idiro Analytics"
+        }
+      };
+
+      let response = await fetch('https://g84c60a1e52e6e4-ora23aidb.adb.eu-paris-1.oraclecloudapps.com/ords/api/ee_do_service/this_action', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(aiRequestBody)
+      });
+
+      let rawText = await response.text();
+      
+      try {
+        const cleanedText = rawText
+          .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+          .replace(/\r\n/g, '\n')
+          .replace(/\n/g, ' ')
+          .trim();
+
+        const data = JSON.parse(cleanedText);
+        if (data && data.ai_generated_response) {
+          onSuggestionSelect(data.ai_generated_response);
+          return;
+        }
+      } catch (parseError) {
+        console.error('Error parsing AI response, falling back to suggested answer');
+      }
+
+      // If AI suggestion fails, try to get suggested answer
+      const questionRequestBody = {
+        procedure: "GET_QUESTION",
+        user_id: 10006,
+        survey_id: "VSME_1",
+        payload: {
+          question_number: parseInt(currentQuestion.questionNumber)
+        }
+      };
+
+      response = await fetch('https://g84c60a1e52e6e4-ora23aidb.adb.eu-paris-1.oraclecloudapps.com/ords/api/ee_do_service/this_action', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionRequestBody)
+      });
+
+      rawText = await response.text();
+      
+      // Parse question data using regex like in QuestionnairePage
+      const suggestedAnswerMatch = rawText.match(/"suggested_answer":\s*"([^"]+)"/);
+      const answerTypeMatch = rawText.match(/"answer_type":\s*"([^"]+)"/);
+
+      if (suggestedAnswerMatch && answerTypeMatch) {
+        const answerType = answerTypeMatch[1];
+        if (answerType === "FREE TEXT" && suggestedAnswerMatch[1]) {
+          onSuggestionSelect(suggestedAnswerMatch[1]);
+        }
+      } else {
+        throw new Error('No suggested answer available for this question');
+      }
+
+    } catch (error) {
+      console.error('Error getting suggestion:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (showOnlyButton) {
+    return (
+      <Button
+        shape="round"
+        className="mt-4 flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+        onClick={getSuggestionFromTara}
+        disabled={isLoading}
+      >
+        <Img
+          src="images/tara2.png"
+          alt="Tara AI"
+          className="h-6 w-6 rounded-full object-cover"
+        />
+        {isLoading ? 'Getting suggestion...' : 'Get suggestion from Tara (AI)'}
+      </Button>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 rounded-[16px] bg-[#F8F9FF] p-[18px]">
-      <div className="flex items-center gap-2 border-b border-gray-200 pb-4">
-        <RiRobot2Fill className="text-2xl text-blue-600" />
+      <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
+        <Img
+          src="images/tara2.png"
+          alt="Tara AI Assistant"
+          className="h-10 w-10 rounded-full object-cover"
+        />
         <Text size="md" as="p" className="font-semibold text-gray-900">
           Tara AI Assistant
         </Text>

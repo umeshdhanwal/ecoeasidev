@@ -405,16 +405,21 @@ const QuestionnairePage = () => {
     if (!question) return null;
 
     switch (question.answerType) {
-      case "FREE TEXT":
+      case 'FREE TEXT':
         return (
-          <TextArea
-            shape="round"
-            name="Answer Textarea"
-            placeholder="Write your answer here"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            className="self-stretch rounded-lg !border !border-gray-200 px-4 font-medium tracking-[0.07px] text-gray-600"
-          />
+          <div className="flex flex-col gap-4">
+            <TextArea
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              className="min-h-[120px] w-full rounded-lg border p-3"
+              placeholder="Enter your answer here..."
+            />
+            <TaraAIAssistant 
+              currentQuestion={question}
+              onSuggestionSelect={(suggestion) => setAnswer(suggestion)}
+              showOnlyButton={true}
+            />
+          </div>
         );
       case "DROP-DOWN":
       case "DROP DOWN":
