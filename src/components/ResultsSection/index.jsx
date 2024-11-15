@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { Leaf, Zap, Factory, BarChart2, Share } from 'lucide-react';
 import { Button } from '../Button';
+import { useNavigate } from 'react-router-dom';
 
 const MultiSelect = ({ options, value, onChange }) => (
   <select
@@ -25,7 +26,9 @@ const MultiSelect = ({ options, value, onChange }) => (
   </select>
 );
 
-const ResultsSection = () => {
+const ResultsSection = ({ totalQuestions }) => {
+  const navigate = useNavigate();
+
   // Dummy data for Carbon emissions
   const carbonData = [
     { name: 'Scope 1', value: 42 },
@@ -77,9 +80,29 @@ const ResultsSection = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-4">Sustainability Assessment Results</h2>
-        <p className="text-gray-600">Based on your responses, here's your company's sustainability profile:</p>
+      <div className="flex justify-between items-center mb-8">
+        <Button
+          onClick={() => window.history.back()}
+          variant="outline" 
+          shape="round" 
+          className="min-w-[90px] rounded-lg border border-blue-600 px-6 py-2 text-blue-600 bg-white hover:bg-blue-50 transition-colors duration-300 flex items-center gap-2"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </Button>
+        <h2 className="text-3xl font-bold">Sustainability Assessment Results</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -186,6 +209,24 @@ const ResultsSection = () => {
 
       <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
         <div className="flex items-center gap-3 mb-6">
+          <BarChart2 className="w-6 h-6 text-indigo-600" />
+          <h3 className="text-xl font-semibold">Generate Report</h3>
+        </div>
+        
+        <p className="text-gray-700 mb-4">
+          Generate a detailed sustainability report based on your assessment results.
+        </p>
+
+        <Button
+          onClick={() => console.log('Generating report...')}
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-300"
+        >
+          Create Detailed Report
+        </Button>
+      </div>
+
+      <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
           <Share className="w-6 h-6 text-blue-600" />
           <h3 className="text-xl font-semibold">Share Results</h3>
         </div>
@@ -207,7 +248,7 @@ const ResultsSection = () => {
           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
           disabled={selectedCompanies.length === 0}
         >
-          Share Results
+          Share Results and Report
         </Button>
       </div>
     </div>
