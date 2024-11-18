@@ -196,6 +196,7 @@ const QuestionnairePage = () => {
         const questionTextMatch = rawText.match(/"question_text":\s*"([^"]+)"/);
         const answerTypeMatch = rawText.match(/"answer_type":\s*"([^"]+)"/);
         const optionsMatch = rawText.match(/"options":\s*(\[.*?\])/);
+        const suggestedAnswerMatch = rawText.match(/"suggested_answer":\s*"([^"]+)"/);
 
         if (questionNumberMatch && questionTextMatch && answerTypeMatch) {
           let answerOptions = [];
@@ -210,9 +211,9 @@ const QuestionnairePage = () => {
           const extractedQuestion = {
             questionNumber: parseInt(questionNumberMatch[1]),
             questionText: questionTextMatch[1],
-            answerType: answerTypeMatch ? answerTypeMatch[1] : "Unknown",
+            answerType: answerTypeMatch[1],
             answerOptions: {
-              answer_type: answerTypeMatch ? answerTypeMatch[1] : "Unknown",
+              answer_type: answerTypeMatch[1],
               options: answerOptions
             }
           };
@@ -220,7 +221,13 @@ const QuestionnairePage = () => {
           console.log("Extracted Question Data:", extractedQuestion);
           setQuestion(extractedQuestion);
           setQuestionNumber(extractedQuestion.questionNumber);
-          setAnswer(""); // Reset answer when new question is loaded
+
+          // If there's a suggested answer and the answer type is FREE TEXT, set it automatically
+          if (suggestedAnswerMatch && extractedQuestion.answerType === "FREE TEXT") {
+            setAnswer(suggestedAnswerMatch[1]);
+          } else {
+            setAnswer(""); // Reset answer for other question types
+          }
         } else {
           console.error("Failed to extract question data");
           setQuestion(null);
