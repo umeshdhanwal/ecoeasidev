@@ -11,11 +11,46 @@ import PricingOptionsSection from "./PricingOptionsSection";
 import Group368Page from "../Group368";
 import React from "react";
 import { useNavigate } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, A11y, Virtual } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 export default function HomepageAPage() {
   const [sliderState, setSliderState] = React.useState(0);
   const sliderRef = React.useRef(null);
   const navigate = useNavigate();
+
+  const swiperConfig = {
+    modules: [Navigation, Pagination, A11y, Virtual],
+    spaceBetween: 0,
+    slidesPerView: 1,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    pagination: {
+      clickable: true,
+    },
+    allowTouchMove: true, // Enable touch swiping
+    resistance: true, // Add resistance effect at the edges
+    touchRatio: 1, // Control swipe sensitivity
+    breakpoints: {
+      // Mobile configuration
+      320: {
+        allowTouchMove: true,
+        touchRatio: 1,
+      },
+      // Desktop configuration
+      768: {
+        allowTouchMove: false,
+      }
+    },
+    onSlideChange: (swiper) => {
+      setSliderState(swiper.activeIndex);
+    }
+  };
 
   return (
     <>
@@ -29,27 +64,12 @@ export default function HomepageAPage() {
       <div className="flex w-full flex-col gap-2.5 bg-white-a700">
         <Header className="absolute left-0 right-0 top-0 m-auto w-full max-w-[1402px] z-10 lg:px-5 md:px-5" />
         <div className="relative h-[1042px] content-center lg:h-auto md:h-auto">
-          <Slider
-            autoPlay
-            autoPlayInterval={2000}
-            responsive={{ 0: { items: 1 } }}
-            renderDotsItem={(props) => {
-              return props?.isActive ? (
-                <div className="mr-2 inline-block h-[16px] w-[16px] cursor-pointer rounded-[50%] bg-green-500_01" />
-              ) : (
-                <div className="mr-2 inline-block h-[16px] w-[16px] cursor-pointer rounded-[50%] bg-gray-300_02" />
-              );
-            }}
-            activeIndex={sliderState}
-            onSlideChanged={(e) => {
-              setSliderState(e?.item);
-            }}
-            ref={sliderRef}
-            disableButtonsControls
-            className="w-full"
-            items={[
-              <Group368Page key="group368" />,
-              <div key="homepage" className="flex h-[1042px] items-end bg-[url(/public/images/img_banner_1042x1920.png)] bg-cover bg-no-repeat p-12 lg:h-auto md:h-auto md:p-5 sm:p-4">
+          <Swiper {...swiperConfig}>
+            <SwiperSlide>
+              <Group368Page key="group368" />
+            </SwiperSlide>
+            <SwiperSlide>
+              <div className="flex h-[1042px] items-end bg-[url(/public/images/img_banner_1042x1920.png)] bg-cover bg-no-repeat p-12 lg:h-auto md:h-auto md:p-5 sm:p-4">
                 <div className="mt-[212px] flex w-[94%] justify-center lg:w-full md:w-full">
                   <div className="mb-[76px] flex w-full justify-center">
                     <div className="container-xs flex justify-center lg:px-5 md:px-5">
@@ -145,8 +165,8 @@ export default function HomepageAPage() {
                   </div>
                 </div>
               </div>
-            ]}
-          />
+            </SwiperSlide>
+          </Swiper>
         </div>
         <div className="mb-1 flex flex-col gap-[170px] py-10 lg:gap-[127px] md:gap-[127px] sm:gap-[85px] sm:py-4">
           <div className="mt-10 flex flex-col gap-[170px] lg:gap-[127px] md:gap-[127px] sm:gap-[85px]">
@@ -167,6 +187,36 @@ export default function HomepageAPage() {
           </div>
         </div>
       </div>
+      <style jsx global>
+        {`
+          .swiper-container {
+            touch-action: pan-y;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+          }
+
+          @media (max-width: 768px) {
+            .swiper-container {
+              overflow: hidden;
+              position: relative;
+            }
+            
+            .swiper-wrapper {
+              display: flex;
+              transition-property: transform;
+              transition-timing-function: ease-out;
+            }
+            
+            .swiper-slide {
+              flex-shrink: 0;
+              width: 100%;
+              position: relative;
+            }
+          }
+        `}
+      </style>
     </>
   );
 }

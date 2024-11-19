@@ -7,10 +7,11 @@ const shapes = {
 };
 const variants = {
   fill: {
-    purple_A700: "bg-purple-a700 text-white-a700",
-    deep_purple_A400: "bg-deep_purple-a400 text-white-a700",
+    purple_A700: "bg-purple-a700 text-white",
+    deep_purple_A400: "bg-deep_purple-a400 text-white",
     white_A700: "bg-white-a700 text-gray-900",
-    green_500_02: "bg-green-500_02 text-white-a700",
+    green_500_02: "bg-green-500_02 text-white",
+    indigo_600: "bg-indigo-600 !text-white",
   },
   outline: {
     blue_gray_100: "border-blue_gray-100 border border-solid text-gray-900",
@@ -35,13 +36,19 @@ const Button = ({
   color = "",
   ...restProps
 }) => {
+  const baseClasses = "flex flex-row items-center justify-center text-center cursor-pointer whitespace-nowrap";
+  const variantClasses = variant && color ? variants[variant]?.[color] : variant === "fill" ? "!text-white" : "";
+  const shapeClasses = shape ? shapes[shape] : "";
+  const sizeClasses = size ? sizes[size] : "";
+
   return (
     <button
-      className={`${className} flex flex-row items-center justify-center text-center cursor-pointer whitespace-nowrap ${shape && shapes[shape]} ${size && sizes[size]} ${variant && variants[variant]?.[color]}`}
+      className={`${baseClasses} ${variantClasses} ${shapeClasses} ${sizeClasses} ${className}`}
+      style={{ color: className.includes('login-button') ? 'white' : '' }}
       {...restProps}
     >
       {!!leftIcon && leftIcon}
-      {children}
+      <span style={{ color: 'inherit' }}>{children}</span>
       {!!rightIcon && rightIcon}
     </button>
   );
@@ -55,7 +62,14 @@ Button.propTypes = {
   shape: PropTypes.oneOf(["square", "round"]),
   size: PropTypes.oneOf(["xs", "md", "sm", "lg", "xl"]),
   variant: PropTypes.oneOf(["fill", "outline"]),
-  color: PropTypes.oneOf(["purple_A700", "deep_purple_A400", "white_A700", "green_500_02", "blue_gray_100"]),
+  color: PropTypes.oneOf([
+    "purple_A700",
+    "deep_purple_A400",
+    "white_A700",
+    "green_500_02",
+    "blue_gray_100",
+    "indigo_600"
+  ]),
 };
 
 export { Button };
