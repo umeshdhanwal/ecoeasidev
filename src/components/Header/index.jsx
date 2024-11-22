@@ -45,7 +45,7 @@ export default function Header({ className = "", simplified = false, onLogout, .
   }
 
   const NavItems = () => (
-    <ul className={`flex ${isMobile ? 'flex-col' : 'flex-wrap'} gap-2.5`}>
+    <ul className={`flex ${isMobile ? 'flex-col' : 'flex-wrap'} gap-8`}>
       {['Home', 'About', 'Products', 'Blog', 'FAQs', 'Contact Us'].map((item) => (
         <li key={item}>
           {item === 'Products' ? (

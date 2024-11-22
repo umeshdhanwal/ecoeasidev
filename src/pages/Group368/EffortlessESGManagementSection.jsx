@@ -14,7 +14,7 @@ export default function EffortlessESGManagementSection() {
                   as="h1"
                   className="w-[80%] text-[75px] font-extrabold leading-[110%] text-gray-900 lg:w-full lg:text-[48px] md:w-full md:text-[48px]"
                 >
-                  Effortlessly Manage ESG Data from Your SME Suppliers with EcoEasi!
+                  Effortlessly manage ESG data from your SME suppliers with EcoEasi!
                 </Heading>
                 <Text
                   size="text3xl"

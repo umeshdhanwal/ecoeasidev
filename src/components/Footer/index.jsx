@@ -14,20 +14,6 @@ export default function Footer({ ...props }) {
                 Low cost Supply Chain ESG Reporting Platform.
               </Text>
             </div>
-            <div className="flex w-[62%] flex-col gap-[18px] lg:w-full md:w-full">
-              <div className="mr-3.5 flex items-center gap-4 md:mr-0">
-                <Img src="images/img_lock.svg" alt="Footer Lock Icon" className="h-[22px] w-[22px] self-end" />
-                <Text as="p" className="text-[22px] font-normal text-gray-600 lg:text-[18px]">
-                  info@ecoeasi.com
-                </Text>
-              </div>
-              <div className="flex items-center gap-4">
-                <Img src="images/img_phone_call.svg" alt="Footer Phone Icon" className="h-[22px] w-[22px] self-end" />
-                <Text as="p" className="text-[22px] font-normal text-gray-600 lg:text-[18px]">
-                  +353 89 243 8762
-                </Text>
-              </div>
-            </div>
           </div>
           <div className="flex w-[48%] flex-col self-center md:w-full">
             <div className="flex w-[60%] flex-wrap justify-between gap-5 lg:w-full md:w-full">
@@ -106,6 +92,13 @@ export default function Footer({ ...props }) {
                 <li>
                   <a href="#" className="lg:text-[18px]">
                     <Text as="p" className="text-[22px] font-normal capitalize text-gray-600">
+                      Company News
+                    </Text>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="lg:text-[18px]">
+                    <Text as="p" className="text-[22px] font-normal capitalize text-gray-600">
                       Background Information
                     </Text>
                   </a>
@@ -120,23 +113,28 @@ export default function Footer({ ...props }) {
                 <li>
                   <a href="#" className="lg:text-[18px]">
                     <Text as="p" className="text-[22px] font-normal capitalize text-gray-600">
-                      Supplier SME terms and conditions
-                    </Text>
-                  </a>
-                </li>
-                <li>
-                  <a href="Privacy" target="_blank" rel="noreferrer" className="lg:text-[18px]">
-                    <Text as="p" className="text-[22px] font-normal capitalize text-gray-600">
-                      Privacy
+                      Supplier Terms & Conditions
                     </Text>
                   </a>
                 </li>
                 <li>
                   <a href="#" className="lg:text-[18px]">
                     <Text as="p" className="text-[22px] font-normal capitalize text-gray-600">
-                      Company news
+                      Privacy
                     </Text>
                   </a>
+                </li>
+                <li className="flex items-center gap-4">
+                  <Img src="images/img_lock.svg" alt="Footer Lock Icon" className="h-[22px] w-[22px] self-end" />
+                  <Text as="p" className="text-[22px] font-normal text-gray-600 lg:text-[18px]">
+                    info@ecoeasi.com
+                  </Text>
+                </li>
+                <li className="flex items-center gap-4">
+                  <Img src="images/img_phone_call.svg" alt="Footer Phone Icon" className="h-[22px] w-[22px] self-end" />
+                  <Text as="p" className="text-[22px] font-normal text-gray-600 lg:text-[18px]">
+                    +353 1 584 4731
+                  </Text>
                 </li>
               </ul>
             </div>

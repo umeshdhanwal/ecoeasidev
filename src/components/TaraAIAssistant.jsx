@@ -10,10 +10,7 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
   const [aiResponse, setAiResponse] = useState('');
 
   useEffect(() => {
-    if (currentQuestion?.questionText && !showOnlyButton) {
-      const formattedQuestion = `Please explain this ESG question in detail: "${currentQuestion.questionText}". Include its relevance to CSRD compliance and VSME framework.`;
-      askTara(formattedQuestion);
-    }
+    // Remove auto-population logic
   }, [currentQuestion, showOnlyButton]);
 
   const askTara = async (question) => {
@@ -31,25 +28,12 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
           messages: [
             { 
               role: "system", 
-              content: `You are Tara, an AI assistant for EcoEasi's ESG reporting platform. Format your responses using clear sections with markdown:
+              content: `You are Tara, an AI assistant for EcoEasi's ESG reporting platform. Provide clear, concise responses about ESG topics, CSRD compliance, and the VSME framework. Use markdown formatting:
 
-### ESG Relevance
-Explain the ESG aspects
-
-### CSRD Compliance
-Explain compliance requirements
-
-### Sustainability Impact
-Explain sustainability implications
-
-### Best Practices
-Provide answering guidelines
-
-Use:
 - **Bold** for emphasis
 - Bullet points for lists
-- Clear section headers with ###
-- Concise paragraphs` 
+- ### for section headers
+- Keep paragraphs concise` 
             },
             { role: "user", content: question }
           ],
@@ -198,79 +182,99 @@ Use:
     return (
       <Button
         shape="round"
-        className="mt-4 flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+        className="mt-4 flex items-center justify-start gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
         onClick={getSuggestionFromTara}
         disabled={isLoading}
       >
-        <Img
-          src="images/tara2.png"
-          alt="Tara AI"
-          className="h-6 w-6 rounded-full object-cover"
-        />
-        {isLoading ? 'Getting suggestion...' : 'Get suggestion from Tara (AI)'}
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <AiOutlineLoading3Quarters className="animate-spin" />
+            <span>Getting suggestion...</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Img
+              src="images/tara2.png"
+              alt="Tara AI"
+              className="h-6 w-6 rounded-full object-cover"
+            />
+            <span>Get suggestion from Tara (AI)</span>
+          </div>
+        )}
       </Button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-8 rounded-[16px] bg-[#F8F9FF] p-[18px]">
-      <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
+    <div className="flex flex-col rounded-2xl bg-white shadow-lg border border-gray-200">
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-gray-200 p-4 bg-gray-50">
         <Img
           src="images/tara2.png"
           alt="Tara AI Assistant"
-          className="h-10 w-10 rounded-full object-cover"
+          className="h-8 w-8 rounded-full object-cover"
         />
         <Text size="md" as="p" className="font-semibold text-gray-900">
           Tara AI Assistant
         </Text>
       </div>
       
-      <div className="mt-2.5 flex flex-col gap-5">
-        <div className="flex flex-col items-start justify-center gap-2.5">
-          <Text size="sm_regular" as="p" className="text-[14px] font-normal tracking-[0.07px] text-black">
-            Ask Tara about this question or any ESG topic
-          </Text>
-          <TextArea
-            shape="round"
-            name="Question Textarea"
-            placeholder="Type your question here..."
-            value={userQuestion}
-            onChange={(e) => setUserQuestion(e.target.value)}
-            className="self-stretch rounded-lg border border-gray-200 px-4 py-2 font-medium tracking-[0.07px] text-gray-600 w-full"
-          />
+      {/* Chat Area */}
+      <div className="flex flex-col h-[500px]">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {aiResponse && (
+            <div className="flex items-start gap-4 bg-gray-50 rounded-lg p-4">
+              <Img
+                src="images/tara2.png"
+                alt="Tara AI"
+                className="h-8 w-8 rounded-full object-cover"
+              />
+              <div className="flex-1">
+                <div 
+                  className="prose prose-sm max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: markdownToHTML(aiResponse) }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex justify-end gap-[13px] items-center">
-          <Button 
-            shape="round" 
-            className="min-w-[112px] rounded-lg px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2"
-            onClick={() => askTara(userQuestion)}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <AiOutlineLoading3Quarters className="animate-spin" />
-                Asking Tara...
-              </>
-            ) : (
-              <>
-                <BiSend />
-                Ask Tara
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-      
-      {aiResponse && (
-        <div className="flex items-start gap-3">
-          <div className="flex-1 self-center rounded-lg border border-solid border-gray-200 bg-white p-4 shadow-sm">
-            <div 
-              className="prose prose-sm max-w-none text-[14px] leading-[22px] text-gray-700"
-              dangerouslySetInnerHTML={{ __html: markdownToHTML(aiResponse) }}
-            />
+
+        {/* Input Area */}
+        <div className="border-t border-gray-200 p-4 bg-white">
+          <div className="relative">
+            <div className="flex items-center w-full rounded-lg border border-gray-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+              <TextArea
+                shape="round"
+                name="Question Textarea"
+                placeholder="Ask me about ESG reporting, CSRD compliance, or VSME framework..."
+                value={userQuestion}
+                onChange={(e) => setUserQuestion(e.target.value)}
+                className="flex-1 border-none pl-4 pr-12 py-4 text-base min-h-[60px] resize-none focus:ring-0"
+                rows={1}
+              />
+              <div className="pr-3">
+                <Button 
+                  shape="circle"
+                  className={`p-1.5 rounded-full ${
+                    userQuestion.trim() 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                  onClick={() => askTara(userQuestion)}
+                  disabled={isLoading || !userQuestion.trim()}
+                >
+                  {isLoading ? (
+                    <AiOutlineLoading3Quarters className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <BiSend className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

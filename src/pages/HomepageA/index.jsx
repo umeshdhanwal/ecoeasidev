@@ -12,7 +12,7 @@ import Group368Page from "../Group368";
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, A11y, Virtual } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -23,7 +23,7 @@ export default function HomepageAPage() {
   const navigate = useNavigate();
 
   const swiperConfig = {
-    modules: [Navigation, Pagination, A11y, Virtual],
+    modules: [Navigation, Pagination, Autoplay],
     spaceBetween: 0,
     slidesPerView: 1,
     navigation: {
@@ -33,18 +33,23 @@ export default function HomepageAPage() {
     pagination: {
       clickable: true,
     },
-    allowTouchMove: true, // Enable touch swiping
-    resistance: true, // Add resistance effect at the edges
-    touchRatio: 1, // Control swipe sensitivity
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: true,
+      pauseOnMouseEnter: true
+    },
+    loop: true,
+    speed: 800,
+    allowTouchMove: true,
+    resistance: true,
+    touchRatio: 1,
     breakpoints: {
-      // Mobile configuration
       320: {
         allowTouchMove: true,
         touchRatio: 1,
       },
-      // Desktop configuration
       768: {
-        allowTouchMove: false,
+        allowTouchMove: true,
       }
     },
     onSlideChange: (swiper) => {
@@ -64,7 +69,17 @@ export default function HomepageAPage() {
       <div className="flex w-full flex-col gap-2.5 bg-white-a700">
         <Header className="absolute left-0 right-0 top-0 m-auto w-full max-w-[1402px] z-10 lg:px-5 md:px-5" />
         <div className="relative h-[1042px] content-center lg:h-auto md:h-auto">
-          <Swiper {...swiperConfig}>
+          <Swiper
+            {...swiperConfig}
+            onSwiper={(swiper) => {
+              swiper.el.addEventListener('mouseenter', () => {
+                swiper.autoplay.stop();
+              });
+              swiper.el.addEventListener('mouseleave', () => {
+                swiper.autoplay.start();
+              });
+            }}
+          >
             <SwiperSlide>
               <Group368Page key="group368" />
             </SwiperSlide>
@@ -190,30 +205,20 @@ export default function HomepageAPage() {
       <style jsx global>
         {`
           .swiper-container {
-            touch-action: pan-y;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            overflow: hidden;
+            position: relative;
           }
 
-          @media (max-width: 768px) {
-            .swiper-container {
-              overflow: hidden;
-              position: relative;
-            }
-            
-            .swiper-wrapper {
-              display: flex;
-              transition-property: transform;
-              transition-timing-function: ease-out;
-            }
-            
-            .swiper-slide {
-              flex-shrink: 0;
-              width: 100%;
-              position: relative;
-            }
+          .swiper-wrapper {
+            display: flex;
+            transition-property: transform;
+            transition-timing-function: ease-out;
+          }
+
+          .swiper-slide {
+            flex-shrink: 0;
+            width: 100%;
+            position: relative;
           }
         `}
       </style>

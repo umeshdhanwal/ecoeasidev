@@ -42,7 +42,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
-            survey_id: "VSME_1",
+            survey_type_id: "VSME_1",
             payload: {
               question_number: currentQuestion
             }
@@ -93,7 +93,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
-            survey_id: "VSME_1",
+            survey_type_id: "VSME_1",
             payload: {
               question_number: currentQuestion
             }
@@ -124,7 +124,7 @@ const QuestionnairePage = () => {
             console.log(`Adding question ${currentQuestion} to ${classification}`);
             tempClassifications[classification].items.push({
               number: currentQuestion,
-              text: questionText,
+              questionText: questionText,
               answered: false
             });
             tempClassifications[classification].total++;
@@ -177,7 +177,7 @@ const QuestionnairePage = () => {
           body: JSON.stringify({
             procedure: "GET_QUESTION",
             user_id: 10006,
-            survey_id: "VSME_1",
+            survey_type_id: "VSME_1",
             payload: {
               question_number: questionNumber
             }
@@ -304,7 +304,7 @@ const QuestionnairePage = () => {
         body: JSON.stringify({
           procedure: "GET_QUESTION",
           user_id: 10006,
-          survey_id: "VSME_1",
+          survey_type_id: "VSME_1",
           payload: {
             question_number: questionNumber + 1
           }
@@ -379,7 +379,7 @@ const QuestionnairePage = () => {
         body: JSON.stringify({
           procedure: "SAVE_ANSWER",
           user_id: 10006,
-          survey_id: "VSME_1",
+          survey_type_id: "VSME_1",
           payload: {
             question_number: questionNum,
             answer: Array.isArray(answerData) ? answerData : [answerData]
@@ -431,38 +431,58 @@ const QuestionnairePage = () => {
       case "DROP-DOWN":
       case "DROP DOWN":
         return (
-          <select
-            name="Answer Dropdown"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3.5 py-2 text-gray-600 focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Select an option</option>
+          <div className="flex flex-col gap-4">
             {question.answerOptions && question.answerOptions.options && 
               question.answerOptions.options.map((option, index) => (
-                <option key={index} value={option.answer_value}>
-                  {option.answer_value}
-                </option>
+                <label 
+                  key={index} 
+                  className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50"
+                >
+                  <div 
+                    className={`w-4 h-4 rounded-full border ${
+                      answer === option.answer_value 
+                        ? 'border-blue-600 bg-blue-600' 
+                        : 'border-gray-300'
+                    } cursor-pointer`}
+                    onClick={() => handleRadioClick(option.answer_value)}
+                  >
+                    {answer === option.answer_value && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5" />
+                    )}
+                  </div>
+                  <span className="text-gray-700">{option.answer_value}</span>
+                </label>
               ))
             }
-          </select>
+          </div>
         );
       case "RADIO BUTTON":
         return (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             {question.answerOptions && question.answerOptions.options && 
               question.answerOptions.options.map((option, index) => (
-                <label key={index} className="flex items-center">
-                  <input
-                    type="radio"
-                    name="Answer Radio"
-                    value={option.answer_value}
-                    checked={answer === option.answer_value}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    className="mr-2"
-                  />
-                  {option.answer_value}
-                </label>
+                <div 
+                  key={index} 
+                  className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50"
+                  onClick={() => {
+                    if (answer === option.answer_value) {
+                      setAnswer('');
+                    } else {
+                      setAnswer(option.answer_value);
+                    }
+                  }}
+                >
+                  <div className={`w-4 h-4 rounded-full border ${
+                    answer === option.answer_value 
+                      ? 'border-blue-600 bg-blue-600' 
+                      : 'border-gray-300'
+                  }`}>
+                    {answer === option.answer_value && (
+                      <div className="w-2 h-2 bg-white rounded-full m-0.5" />
+                    )}
+                  </div>
+                  <span className="text-gray-700">{option.answer_value}</span>
+                </div>
               ))
             }
           </div>
@@ -514,6 +534,47 @@ const QuestionnairePage = () => {
     navigate('/');
   };
 
+  const handleQuestionNavigation = async (questionNum) => {
+    try {
+      // Save current answer before navigation
+      if (question && answer) {
+        await saveAnswer(questionNumber, answer);
+      }
+      setQuestionNumber(questionNum);
+    } catch (error) {
+      console.error('Error navigating to question:', error);
+    }
+  };
+
+  const handleSkipQuestion = async (questionNum) => {
+    try {
+      // Update the classifications to mark the question as skipped
+      setClassifications(prev => {
+        const newClassifications = { ...prev };
+        Object.keys(newClassifications).forEach(category => {
+          const question = newClassifications[category].items.find(q => q.number === questionNum);
+          if (question) {
+            question.skipped = true;
+          }
+        });
+        return newClassifications;
+      });
+      
+      // Move to next question
+      setQuestionNumber(prevNumber => prevNumber + 1);
+    } catch (error) {
+      console.error('Error skipping question:', error);
+    }
+  };
+
+  const handleRadioClick = (selectedValue) => {
+    if (answer === selectedValue) {
+      setAnswer(''); // Clear the answer if clicking the same option
+    } else {
+      setAnswer(selectedValue);
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -535,6 +596,7 @@ const QuestionnairePage = () => {
             <QuestionnaireStepper 
               classifications={classifications}
               currentQuestion={questionNumber}
+              onQuestionClick={handleQuestionNavigation}
             />
             <div className="flex-1">
               <div className="container-xs mb-1 mt-12 md:px-5">
@@ -560,7 +622,7 @@ const QuestionnairePage = () => {
                         {renderAnswerInput()}
                       </div>
                     </div>
-                    <div className="ml-2.5 flex justify-between w-full md:ml-0">
+                    <div className="ml-2.5 flex justify-between w-full md:ml-0 gap-2">
                       <Button 
                         onClick={handleBackQuestion} 
                         variant="outline" 
@@ -570,21 +632,32 @@ const QuestionnairePage = () => {
                       >
                         Back
                       </Button>
-                      <Button 
-                        onClick={handleNextQuestion} 
-                        shape="round" 
-                        className="min-w-[90px] rounded-lg px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
-                        disabled={isButtonLoading}
-                      >
-                        {isButtonLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Loading...
-                          </div>
-                        ) : (
-                          'Next'
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => handleSkipQuestion(questionNumber)}
+                          variant="outline" 
+                          shape="round" 
+                          className="min-w-[90px] rounded-lg border border-gray-300 px-6 py-2 text-gray-600 bg-white hover:bg-gray-50 transition-colors duration-300"
+                          disabled={isButtonLoading}
+                        >
+                          Skip
+                        </Button>
+                        <Button 
+                          onClick={handleNextQuestion} 
+                          shape="round" 
+                          className="min-w-[90px] rounded-lg px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 disabled:bg-blue-300"
+                          disabled={isButtonLoading}
+                        >
+                          {isButtonLoading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Loading...
+                            </div>
+                          ) : (
+                            'Save and Continue'
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   {/* Add the prompt answer and selection section here */}
