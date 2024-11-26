@@ -203,12 +203,14 @@ const QuestionnairePage = () => {
 
         let rawText = await response.text();
         console.log("Raw API Response:", rawText);
+        console.log("Display Tara Button Match:", rawText.match(/"display_tara_button":\s*"([^"]+)"/));
 
         // Extract question data using regex
         const questionNumberMatch = rawText.match(/"question_number":\s*(\d+)/);
         const questionTextMatch = rawText.match(/"question_text":\s*"([^"]+)"/);
         const answerTypeMatch = rawText.match(/"answer_type":\s*"([^"]+)"/);
         const optionsMatch = rawText.match(/"options":\s*(\[.*?\])/);
+        const displayTaraButtonMatch = rawText.match(/"display_tara_button":\s*"([^"]+)"/);
         const suggestedAnswerMatch = rawText.match(/"suggested_answer":\s*"([^"]+)"/);
 
         if (questionNumberMatch && questionTextMatch && answerTypeMatch) {
@@ -225,6 +227,8 @@ const QuestionnairePage = () => {
             questionNumber: parseInt(questionNumberMatch[1]),
             questionText: questionTextMatch[1],
             answerType: answerTypeMatch[1],
+            display_tara_button: displayTaraButtonMatch ? displayTaraButtonMatch[1] : 'N',
+            suggested_answer: suggestedAnswerMatch ? suggestedAnswerMatch[1] : '',
             answerOptions: {
               answer_type: answerTypeMatch[1],
               options: answerOptions
@@ -235,11 +239,13 @@ const QuestionnairePage = () => {
           setQuestion(extractedQuestion);
           setQuestionNumber(extractedQuestion.questionNumber);
 
-          // If there's a suggested answer and the answer type is FREE TEXT, set it automatically
-          if (suggestedAnswerMatch && extractedQuestion.answerType === "FREE TEXT") {
-            setAnswer(suggestedAnswerMatch[1]);
+          // Auto-populate answer only if display_tara_button is 'N' and there's a suggested answer
+          if (extractedQuestion.answerType === "FREE TEXT" && 
+              extractedQuestion.display_tara_button === 'N' && 
+              extractedQuestion.suggested_answer) {
+            setAnswer(extractedQuestion.suggested_answer);
           } else {
-            setAnswer(""); // Reset answer for other question types
+            setAnswer(""); // Reset answer for other cases
           }
         } else {
           console.error("Failed to extract question data");
@@ -339,6 +345,7 @@ const QuestionnairePage = () => {
       const questionTextMatch = rawText.match(/"question_text":\s*"([^"]+)"/);
       const answerTypeMatch = rawText.match(/"answer_type":\s*"([^"]+)"/);
       const optionsMatch = rawText.match(/"options":\s*(\[.*?\])/);
+      const displayTaraButtonMatch = rawText.match(/"display_tara_button":\s*"([^"]+)"/);
 
       if (!questionNumberMatch || !questionTextMatch || !answerTypeMatch) {
         console.log("Invalid question data, showing results");
@@ -363,6 +370,7 @@ const QuestionnairePage = () => {
         questionNumber: nextQuestionNumber,
         questionText: questionTextMatch[1],
         answerType: answerTypeMatch[1],
+        display_tara_button: displayTaraButtonMatch ? displayTaraButtonMatch[1] : 'N',
         answerOptions: {
           answer_type: answerTypeMatch[1],
           options: optionsMatch ? JSON.parse(optionsMatch[1]) : []
@@ -371,6 +379,11 @@ const QuestionnairePage = () => {
 
       // Update question status in classifications
       updateQuestionStatus(questionNumber, true);
+
+      console.log('New question set:', {
+        questionNumber: nextQuestionNumber,
+        display_tara_button: displayTaraButtonMatch ? displayTaraButtonMatch[1] : 'N'
+      });
 
     } catch (error) {
       console.error("Error handling next question:", error);
@@ -424,6 +437,9 @@ const QuestionnairePage = () => {
   const renderAnswerInput = () => {
     if (!question) return null;
 
+    console.log('Current question state:', question);
+    console.log('Display Tara button value:', question.display_tara_button);
+
     switch (question.answerType) {
       case 'FREE TEXT':
         return (
@@ -434,7 +450,7 @@ const QuestionnairePage = () => {
               className="min-h-[120px] w-full rounded-lg border p-3"
               placeholder="Enter your answer here..."
             />
-            {question.displayTaraButton === 'Y' && (
+            {question.display_tara_button === 'Y' && (
               <TaraAIAssistant 
                 currentQuestion={question}
                 onSuggestionSelect={(suggestion) => setAnswer(suggestion)}

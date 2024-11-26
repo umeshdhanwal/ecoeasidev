@@ -141,7 +141,6 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
       } catch (parseError) {
         console.error('Error parsing AI response, falling back to suggested answer');
       }
-
       // If AI suggestion fails, try to get suggested answer
       const questionRequestBody = {
         procedure: "GET_QUESTION",
