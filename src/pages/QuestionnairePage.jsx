@@ -26,8 +26,20 @@ const QuestionnairePage = () => {
   });
   const [isSurveyComplete, setIsSurveyComplete] = useState(false);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [userId, setUserId] = useState(localStorage.getItem('user_id') || "10006");
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('user_id');
+    if (!storedUserId) {
+      // Redirect to login if no user_id is found
+      navigate('/login');
+      return;
+    }
+    setUserId(storedUserId);
+  }, [navigate]);
 
   const fetchTotalQuestions = async () => {
+    if (!userId) return;
     try {
       let currentQuestion = 1;
       let totalQuestions = 0;
@@ -41,7 +53,7 @@ const QuestionnairePage = () => {
           },
           body: JSON.stringify({
             procedure: "GET_QUESTION",
-            user_id: 10006,
+            user_id: userId,
             survey_type_id: "VSME_1",
             payload: {
               question_number: currentQuestion
@@ -92,7 +104,7 @@ const QuestionnairePage = () => {
           },
           body: JSON.stringify({
             procedure: "GET_QUESTION",
-            user_id: 10006,
+            user_id: userId,
             survey_type_id: "VSME_1",
             payload: {
               question_number: currentQuestion
@@ -166,6 +178,7 @@ const QuestionnairePage = () => {
 
   useEffect(() => {
     const fetchQuestion = async () => {
+      if (!userId) return;
       try {
         console.log("Fetching question number:", questionNumber);
         const response = await fetch("https://g84c60a1e52e6e4-ora23aidb.adb.eu-paris-1.oraclecloudapps.com/ords/api/ee_do_service/this_action", {
@@ -176,7 +189,7 @@ const QuestionnairePage = () => {
           },
           body: JSON.stringify({
             procedure: "GET_QUESTION",
-            user_id: 10006,
+            user_id: userId,
             survey_type_id: "VSME_1",
             payload: {
               question_number: questionNumber
@@ -303,7 +316,7 @@ const QuestionnairePage = () => {
         },
         body: JSON.stringify({
           procedure: "GET_QUESTION",
-          user_id: 10006,
+          user_id: userId,
           survey_type_id: "VSME_1",
           payload: {
             question_number: questionNumber + 1
@@ -378,7 +391,7 @@ const QuestionnairePage = () => {
         },
         body: JSON.stringify({
           procedure: "SAVE_ANSWER",
-          user_id: 10006,
+          user_id: userId,
           survey_type_id: "VSME_1",
           payload: {
             question_number: questionNum,
@@ -421,11 +434,13 @@ const QuestionnairePage = () => {
               className="min-h-[120px] w-full rounded-lg border p-3"
               placeholder="Enter your answer here..."
             />
-            <TaraAIAssistant 
-              currentQuestion={question}
-              onSuggestionSelect={(suggestion) => setAnswer(suggestion)}
-              showOnlyButton={true}
-            />
+            {question.displayTaraButton === 'Y' && (
+              <TaraAIAssistant 
+                currentQuestion={question}
+                onSuggestionSelect={(suggestion) => setAnswer(suggestion)}
+                showOnlyButton={true}
+              />
+            )}
           </div>
         );
       case "DROP-DOWN":

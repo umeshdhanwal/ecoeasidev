@@ -45,6 +45,7 @@ const LoginPage = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('Login successful:', data);
+        localStorage.setItem('user_id', data.user_id);
         navigate('/questionnaire');
       } else {
         setLoginError(true);

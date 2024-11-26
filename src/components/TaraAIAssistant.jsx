@@ -8,6 +8,12 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
   const [userQuestion, setUserQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState('');
+  const userId = localStorage.getItem('user_id') || "10006";
+
+  useEffect(() => {
+    setAiResponse('');
+    setUserQuestion('');
+  }, [currentQuestion?.questionNumber]);
 
   useEffect(() => {
     // Remove auto-population logic
@@ -99,10 +105,9 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
 
     setIsLoading(true);
     try {
-      // First try to get AI suggestion
       const aiRequestBody = {
         procedure: "ASK_TARA",
-        user_id: 10006,
+        user_id: userId,
         survey_id: "VSME_1",
         payload: {
           question_number: parseInt(currentQuestion.questionNumber),
@@ -140,7 +145,7 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
       // If AI suggestion fails, try to get suggested answer
       const questionRequestBody = {
         procedure: "GET_QUESTION",
-        user_id: 10006,
+        user_id: userId,
         survey_id: "VSME_1",
         payload: {
           question_number: parseInt(currentQuestion.questionNumber)
@@ -172,7 +177,7 @@ const TaraAIAssistant = ({ currentQuestion, onSuggestionSelect, showOnlyButton =
       }
 
     } catch (error) {
-      console.error('Error getting suggestion:', error);
+      console.error('Error getting suggestion from Tara:', error);
     } finally {
       setIsLoading(false);
     }
